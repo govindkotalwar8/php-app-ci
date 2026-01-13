@@ -5,6 +5,7 @@ pipeline {
     AWS_REGION = "us-east-1"
     ECR_REPO  = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
     IMAGE_TAG = "${BUILD_NUMBER}"
+    EKS_CLUSTER = "test-eks"
   }
 
   stages {
@@ -38,7 +39,19 @@ pipeline {
       }
     }
 
-    stage('Deploy to EKS') {
+    🔑 stage('Configure kubectl for EKS') {
+      steps {
+        sh '''
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name $EKS_CLUSTER
+
+          kubectl get nodes
+        '''
+      }
+    }
+
+    🚀 stage('Deploy to EKS') {
       steps {
         sh '''
           kubectl apply -f k8s/deployment.yaml
@@ -50,7 +63,7 @@ pipeline {
 
   post {
     success {
-      echo "✅ Image successfully pushed to ECR and deployed to EKS"
+      echo "✅ Image pushed to ECR and deployed to EKS"
     }
     failure {
       echo "❌ Pipeline failed"
