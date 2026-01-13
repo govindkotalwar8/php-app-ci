@@ -1,3 +1,3 @@
 <?php
-echo "Hello from Jenkins CI/CD Pipeline!";
+echo "PHP App Running via EKS Ingress";
 ?>

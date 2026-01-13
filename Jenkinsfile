@@ -2,51 +2,32 @@ pipeline {
   agent any
 
   environment {
-    AWS_REGION  = "us-east-1"
-    ECR_REPO   = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
-    IMAGE_TAG  = "${BUILD_NUMBER}"
-    EKS_CLUSTER = "test-eks"
+    AWS_REGION = "us-east-1"
+    ECR_REPO = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
   }
 
   stages {
 
-    stage('Verify Workspace') {
+    stage('Checkout') {
       steps {
-        sh 'pwd'
-        sh 'ls -la'
+        git branch: 'main', url: 'https://github.com/<your-username>/php-app-ci.git'
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t $ECR_REPO:$IMAGE_TAG .'
+        sh 'docker build -t php-app .'
       }
     }
 
-    stage('Login to AWS ECR') {
+    stage('Push to ECR') {
       steps {
         sh '''
-          aws ecr get-login-password --region $AWS_REGION \
-          | docker login --username AWS \
-          --password-stdin 629649838083.dkr.ecr.us-east-1.amazonaws.com
-        '''
-      }
-    }
+        aws ecr get-login-password --region $AWS_REGION \
+        | docker login --username AWS --password-stdin $ECR_REPO
 
-    stage('Push Image to ECR') {
-      steps {
-        sh 'docker push $ECR_REPO:$IMAGE_TAG'
-      }
-    }
-
-    stage('Configure kubectl for EKS') {
-      steps {
-        sh '''
-          aws eks update-kubeconfig \
-            --region $AWS_REGION \
-            --name $EKS_CLUSTER
-
-          kubectl get nodes
+        docker tag php-app:latest $ECR_REPO:latest
+        docker push $ECR_REPO:latest
         '''
       }
     }
@@ -54,20 +35,11 @@ pipeline {
     stage('Deploy to EKS') {
       steps {
         sh '''
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/ingress.yaml
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+        kubectl apply -f k8s/ingress.yaml
         '''
       }
-    }
-  }
-
-  post {
-    success {
-      echo "Image pushed to ECR and deployed to EKS"
-    }
-    failure {
-      echo "Pipeline failed"
     }
   }
 }
