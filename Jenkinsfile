@@ -1,50 +1,61 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    AWS_REGION = "us-east-1"
-    ECR_REPO = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
-  }
-
-  stages {
-
-    stage('Verify Workspace') {
-      steps {
-        sh '''
-        pwd
-        ls -la
-        '''
-      }
+    environment {
+        AWS_REGION = "us-east-1"
+        ECR_REPO   = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+        CLUSTER    = "test-eks"
     }
 
-    stage('Build Docker Image') {
-      steps {
-        sh '''
-        docker build -t php-app:latest .
-        '''
-      }
-    }
+    stages {
 
-    stage('Login to ECR & Push Image') {
-      steps {
-        sh '''
-        aws ecr get-login-password --region $AWS_REGION \
-        | docker login --username AWS --password-stdin $ECR_REPO
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
-        docker tag php-app:latest $ECR_REPO:latest
-        docker push $ECR_REPO:latest
-        '''
-      }
-    }
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                docker build -t ${ECR_REPO}:${IMAGE_TAG} .
+                """
+            }
+        }
 
-    stage('Deploy to EKS') {
-      steps {
-        sh '''
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
-        kubectl apply -f k8s/ingress.yaml
-        '''
-      }
+        stage('Login to ECR') {
+            steps {
+                sh """
+                aws ecr get-login-password --region ${AWS_REGION} \
+                | docker login --username AWS --password-stdin ${ECR_REPO}
+                """
+            }
+        }
+
+        stage('Push Image to ECR') {
+            steps {
+                sh """
+                docker push ${ECR_REPO}:${IMAGE_TAG}
+                """
+            }
+        }
+
+        stage('Configure kubectl') {
+            steps {
+                sh """
+                aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER}
+                """
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                sh """
+                kubectl set image deployment/php-app php-app=${ECR_REPO}:${IMAGE_TAG}
+                kubectl rollout status deployment/php-app
+                """
+            }
+        }
     }
-  }
 }
