@@ -8,19 +8,24 @@ pipeline {
 
   stages {
 
-    stage('Checkout') {
+    stage('Verify Workspace') {
       steps {
-        git branch: 'main', url: 'https://github.com/<your-username>/php-app-ci.git'
+        sh '''
+        pwd
+        ls -la
+        '''
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t php-app .'
+        sh '''
+        docker build -t php-app:latest .
+        '''
       }
     }
 
-    stage('Push to ECR') {
+    stage('Login to ECR & Push Image') {
       steps {
         sh '''
         aws ecr get-login-password --region $AWS_REGION \
