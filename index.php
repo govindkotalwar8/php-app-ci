@@ -19,7 +19,7 @@ echo "<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <h1>Karthik ❤️ Dhanu</h1>
+    <h1>Chiku ❤️ Dhanu</h1>
 </body>
 </html>";
 ?>
