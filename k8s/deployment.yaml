@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: php-app
-        image: 629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app:latest
+        image: 629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app:7
         ports:
         - containerPort: 80
