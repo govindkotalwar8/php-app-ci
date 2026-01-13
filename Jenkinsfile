@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     AWS_REGION = "us-east-1"
-    ECR_REPO = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
+    ECR_REPO  = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
     IMAGE_TAG = "${BUILD_NUMBER}"
   }
 
@@ -37,22 +37,23 @@ pipeline {
         sh 'docker push $ECR_REPO:$IMAGE_TAG'
       }
     }
+
+    stage('Deploy to EKS') {
+      steps {
+        sh '''
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+        '''
+      }
+    }
   }
 
   post {
     success {
-      echo "✅ Image successfully pushed to ECR"
+      echo "✅ Image successfully pushed to ECR and deployed to EKS"
     }
     failure {
       echo "❌ Pipeline failed"
     }
   }
-}
-stage('Deploy to EKS') {
-    steps {
-        sh '''
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-        '''
-    }
 }
