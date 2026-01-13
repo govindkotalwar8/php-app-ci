@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        githubPush()
+    }
+
     environment {
         AWS_REGION = "us-east-1"
         ECR_REPO   = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
@@ -51,7 +55,7 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                sh """
+                               sh """
                 kubectl set image deployment/php-app php-app=${ECR_REPO}:${IMAGE_TAG}
                 kubectl rollout status deployment/php-app
                 """
