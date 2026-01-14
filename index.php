@@ -1,6 +1,4 @@
-<?php
-  $currentYear = date("Y");
-?>
+<?php $year = date("Y"); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,14 +13,158 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
   <style>
-    /* ===== SAME CSS AS YOUR HTML (UNCHANGED) ===== */
-<?php include "styles.css"; ?>
+    :root {
+      --accent-color: #00F5C4;
+      --bg-color: #0A0A0A;
+      --text-color: #EAEAEA;
+      --glass: rgba(22, 22, 22, 0.77);
+      --border: rgba(255,255,255,0.07);
+      --blur: blur(18px);
+      --font: 'Manrope', system-ui, sans-serif;
+      --transition: all .34s cubic-bezier(.75,.08,.47,1.18);
+      --radius: 1.5rem;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: linear-gradient(111deg, #181a20 44%, #0a0a0a 95%);
+      color: var(--text-color);
+      margin: 0; 
+      min-height: 100vh;
+      font-size: 17px;
+      letter-spacing: 0.01em;
+    }
+
+    /* Preloader */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #preloader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .preloader-bar {
+      width: 240px;
+      height: 8px;
+      background: #232323;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-color), #42ffd6);
+      animation: loading-bar 1.3s linear infinite;
+    }
+    @keyframes loading-bar {
+      0% { width: 0%; }
+      70% { width: 85%; }
+      100% { width: 0%; }
+    }
+
+    .glass {
+      background: var(--glass);
+      border-radius: var(--radius);
+      border: 1.4px solid var(--border);
+      backdrop-filter: var(--blur);
+    }
+
+    /* NAV */
+    .main-nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 2rem 6vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+    }
+    .nav-logo {
+      font-weight: 900;
+      font-size: 2rem;
+      color: white;
+      text-decoration: none;
+    }
+    .nav-menu {
+      display: flex;
+      gap: 3rem;
+    }
+    .nav-menu a {
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .nav-menu a:hover {
+      color: var(--accent-color);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--accent-color);
+      font-size: 1.3em;
+      cursor: pointer;
+    }
+
+    .light-mode {
+      --bg-color: #F8FAFF;
+      --text-color: #111114;
+      --glass: rgba(233,242,251,0.91);
+      --border: rgba(33,44,80,0.18);
+      --accent-color: #0439d9;
+    }
+
+    /* HERO */
+    .hero-section {
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      padding: 0 8vw;
+    }
+    .hero-content h1 {
+      font-size: clamp(3rem, 7vw, 5.4rem);
+      font-weight: 900;
+      color: white;
+    }
+    .accent { color: var(--accent-color); }
+    .hero-desc {
+      color: #b8c2ba;
+      font-size: 1.18rem;
+    }
+
+    .btn-main {
+      background: var(--accent-color);
+      color: var(--bg-color);
+      padding: 0.9em 2.3em;
+      border-radius: 77px;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1.5rem;
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: 5vw;
+      border-top: 1px solid var(--border);
+      padding: 2em 7vw;
+      display: flex;
+      justify-content: space-between;
+      color: #888;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- Preloader -->
 <div id="preloader">
   <div class="preloader-bar">
     <div class="progress"></div>
@@ -30,115 +172,38 @@
 </div>
 
 <header class="main-nav glass">
-  <div>
-    <a href="#" class="nav-logo">GK</a>
-    <button class="theme-toggle" title="Toggle light/dark">
-      <i class="fa fa-moon"></i>
-    </button>
-  </div>
+  <a href="#" class="nav-logo">GK</a>
   <nav class="nav-menu">
     <a href="#about-section">About</a>
     <a href="#projects-section">Projects</a>
     <a href="#contact-section">Contact</a>
   </nav>
+  <button class="theme-toggle"><i class="fa fa-moon"></i></button>
 </header>
 
-<main>
-
-  <!-- HERO -->
-  <section class="hero-section">
-    <div class="hero-content">
-      <h1>
-        Cloud <span class="accent">DevOps</span> Leader<br>
-        Architecting <span class="accent">Resilience</span>
-      </h1>
-      <p class="hero-desc">
-        I design <b>automated cloud backbones for the modern web</b>.
-        My expertise: AWS, Infra automation, scalable deployment, and bulletproof DevOps.
-      </p>
-
-      <a href="resume.pdf" class="btn-main btn-resume">Download Resume</a>
-
-      <div class="hero-socials" style="margin-top:2rem;">
-        <a href="https://github.com/govindkotalwar" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://linkedin.com/in/govind-kotalwar" target="_blank"><i class="fab fa-linkedin"></i></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section id="about-section" style="padding:5vw 8vw;">
-    <div class="bento-grid">
-      <div class="bento-item bento-about glass">
-        <h2>About Me</h2>
-        <p>
-          Hi, I'm <b>Govind</b> — Cloud/DevOps Engineer and infra optimizer.
-          My core: <b>high-availability, automation, cost efficiency</b> and secure AWS architectures.
-        </p>
-      </div>
-
-      <div class="bento-item glass"><b>AWS Cloud</b> <i class="fab fa-aws"></i></div>
-      <div class="bento-item glass"><b>Infra as Code</b> <i class="fa fa-code"></i></div>
-      <div class="bento-item glass"><b>CI/CD Pipelines</b> <i class="fas fa-rocket"></i></div>
-      <div class="bento-item glass"><b>Docker</b> <i class="fab fa-docker"></i></div>
-      <div class="bento-item glass"><b>Serverless & DBs</b> <i class="fa fa-server"></i></div>
-      <div class="bento-item glass"><b>Linux</b> <i class="fab fa-linux"></i></div>
-    </div>
-  </section>
-
-  <!-- PROJECTS -->
-  <section id="projects-section" style="padding:5vw 8vw 2vw;">
-    <h2 style="font-weight:900; text-align:center; margin-bottom:3vw;">Projects</h2>
-
-    <div class="projects-wrapper">
-      <div class="project-card glass">
-        <div class="project-bg" style="background-image:url('https://images.unsplash.com/photo-1583483438515-32079c164472');"></div>
-        <div class="project-content">
-          <h3>HA Web App Infra</h3>
-          <p>Multi-AZ AWS infra with ASG & ELB — 99.99% uptime.</p>
-          <div class="project-tags">
-            <span>AWS</span><span>AutoScaling</span><span>CloudFormation</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="project-card glass">
-        <div class="project-bg" style="background-image:url('https://images.unsplash.com/photo-1544419586-3a5e1136b81a');"></div>
-        <div class="project-content">
-          <h3>Production RDS MySQL</h3>
-          <p>Multi-AZ RDS with automated failover & monitoring.</p>
-          <div class="project-tags">
-            <span>RDS</span><span>MySQL</span><span>CloudWatch</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact-section" style="padding:6vw 8vw;">
-    <div class="glass" style="padding:3em 2em; max-width:500px; margin:auto; text-align:center;">
-      <h2>Let's Build Together</h2>
-      <a href="mailto:govindkotalwargk121@gmail.com" class="btn-main">Contact Me</a>
-      <p>Reach out via email or LinkedIn.</p>
-    </div>
-  </section>
-
-</main>
+<section class="hero-section">
+  <div class="hero-content">
+    <h1>Cloud <span class="accent">DevOps</span> Leader<br>Architecting <span class="accent">Resilience</span></h1>
+    <p class="hero-desc">
+      I design automated cloud backbones for the modern web.
+    </p>
+    <a href="resume.pdf" class="btn-main">Download Resume</a>
+  </div>
+</section>
 
 <footer>
-  <span>&copy; <?= $currentYear ?> Govind Kotalwar</span>
-  <span class="footer-links">
-    <a href="https://github.com/govindkotalwar" target="_blank"><i class="fab fa-github"></i></a>
-    <a href="https://linkedin.com/in/govind-kotalwar" target="_blank"><i class="fab fa-linkedin"></i></a>
+  <span>&copy; <?= $year ?> Govind Kotalwar</span>
+  <span>
+    <a href="https://github.com/govindkotalwar"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/govind-kotalwar"><i class="fab fa-linkedin"></i></a>
   </span>
 </footer>
 
 <script>
   window.addEventListener('load', () => {
-    const preloader = document.getElementById('preloader');
-    preloader.classList.add('hidden');
-    setTimeout(() => preloader.remove(), 650);
+    const p = document.getElementById('preloader');
+    p.classList.add('hidden');
+    setTimeout(() => p.remove(), 600);
   });
 
   document.querySelector('.theme-toggle').onclick = function () {
