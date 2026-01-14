@@ -1,223 +1,170 @@
-# PHP Student Registration Application – DevOps CI/CD on AWS EKS
+# Kubernetes CI/CD Deployment on AWS (EKS)
 
-## Overview
+This repository demonstrates a complete CI/CD and infrastructure setup for deploying a containerized PHP application on **Amazon EKS** using **Terraform, Ansible, Jenkins, Docker, and AWS services**.
 
-This project demonstrates a complete end-to-end DevOps implementation for a **PHP Student Registration Application** deployed on **Amazon EKS** using modern cloud-native and DevOps best practices.
-
-The solution covers **infrastructure provisioning, configuration management, CI/CD automation, containerization, Kubernetes orchestration, ingress traffic management, and database integration**.
-
-All deployments are fully automated using **GitHub Webhooks and Jenkins**, ensuring that any code change is automatically built, pushed, and deployed to the Kubernetes cluster.
+The project represents a real-world DevOps workflow where infrastructure provisioning, application build, and deployment are fully automated.
 
 ---
 
-## High-Level Architecture
+## Architecture
 
-The system follows a layered DevOps architecture:
+Below are screenshots from the live, running system.
 
-1. **Infrastructure as Code**
+### Architecture Diagram
+![Architecture Diagram](screenshots/architecture.png)
 
-   * Terraform provisions AWS resources such as VPC, EKS, ECR, EC2, IAM roles, and networking components.
-   * Ansible configures EC2 instances with Jenkins, Docker, AWS CLI, kubectl, and required dependencies.
+## Architecture Overview
 
-2. **CI/CD Automation**
+The system consists of three main layers:
 
-   * GitHub hosts application and Kubernetes manifests.
-   * GitHub Webhook triggers Jenkins automatically on every code push.
-   * Jenkins builds Docker images, tags them dynamically, pushes them to ECR, and deploys to EKS.
+1. Infrastructure Provisioning
+2. CI/CD Pipeline
+3. Application Runtime on Kubernetes (EKS)
 
-3. **Container Orchestration**
-
-   * Amazon EKS manages application workloads.
-   * Kubernetes Deployments ensure rolling updates with zero downtime.
-   * Kubernetes Services expose internal communication.
-   * Ingress with AWS Load Balancer Controller exposes the application externally.
-
-4. **Application & Database**
-
-   * PHP Student Registration Application runs in Kubernetes Pods.
-   * Application connects to a dedicated database server for persistent data storage.
+The architecture uses AWS managed services combined with Kubernetes-native components to ensure scalability, reliability, and automation.
 
 ---
 
-## Architecture Diagram
+## Infrastructure Provisioning
 
-Add the generated architecture diagram image here:
+### Terraform
+Terraform is used to provision and manage AWS infrastructure, including:
+- Amazon EKS cluster
+- Application Load Balancer (ALB)
+- VPC, subnets, and security groups
+- IAM roles and policies
 
-```
-/screenshots/architecture-diagram.png
-```
+All infrastructure is defined as code and managed through version control.
 
----
-
-## Technology Stack
-
-### Infrastructure & Cloud
-
-* AWS EC2
-* Amazon VPC
-* Amazon EKS
-* Amazon ECR
-* IAM Roles and Policies
-* Application Load Balancer (ALB)
-
-### DevOps & Automation
-
-* Terraform
-* Ansible
-* Jenkins
-* GitHub Webhooks
-
-### Containers & Orchestration
-
-* Docker
-* Kubernetes
-* AWS Load Balancer Controller
-* Kubernetes Ingress
-
-### Application
-
-* PHP
-* Apache
-* Database Server (MySQL or compatible)
+### Ansible
+Ansible is used for configuration management and automation tasks such as:
+- Installing required tools
+- Configuring Jenkins and system dependencies
+- Supporting post-provisioning setup
 
 ---
 
-## CI/CD Pipeline Flow
+## CI/CD Pipeline
 
-1. Developer pushes code changes to GitHub.
-2. GitHub Webhook triggers Jenkins pipeline automatically.
-3. Jenkins pipeline performs:
+### GitHub
+- Hosts the application source code
+- Any code push triggers the CI/CD pipeline via webhook
 
-   * Source code checkout
-   * Docker image build
-   * Dynamic image tagging (build number or commit ID)
-   * Push image to Amazon ECR
-   * Update Kubernetes deployment
-4. Kubernetes performs a rolling update.
-5. New pods pull the latest image from ECR.
-6. Application is accessible via ALB Ingress endpoint.
+### Jenkins
+Jenkins handles the complete CI/CD workflow:
+1. Receives webhook trigger from GitHub
+2. Builds the Docker image
+3. Pushes the image to Amazon ECR
+4. Deploys the application to Amazon EKS
 
----
-
-## Docker Image Tag Automation
-
-To avoid stale deployments, the pipeline uses **dynamic image tags** instead of `latest`.
-
-Example tag format:
-
-```
-php-app:${BUILD_NUMBER}
-```
-
-This ensures:
-
-* Every build is unique
-* Kubernetes always pulls the correct image
-* Code changes reflect immediately after deployment
+This enables continuous integration and continuous deployment with zero manual steps.
 
 ---
 
-## Kubernetes Deployment Strategy
+## Container Registry (Amazon ECR)
 
-* Rolling updates are enabled by default
-* Zero downtime during deployments
-* Health checks ensure only healthy pods receive traffic
-* Ingress routes traffic via AWS ALB
-
----
-
-## Project Repository Structure
-
-```
-.
-├── Dockerfile
-├── Jenkinsfile
-├── deployment.yaml
-├── service.yaml
-├── ingress.yaml
-├── index.php
-├── terraform/
-│   ├── main.tf
-│   ├── vpc.tf
-│   ├── eks.tf
-│   └── ecr.tf
-├── ansible/
-│   ├── install-jenkins.yml
-│   ├── install-docker.yml
-│   └── setup-tools.yml
-└── README.md
-```
+- Docker images are stored in Amazon Elastic Container Registry
+- Jenkins pushes versioned images to ECR
+- Kubernetes pods pull images directly from ECR during deployment
 
 ---
 
-## How to Deploy
+## Application Runtime on Amazon EKS
 
-### Prerequisites
+### Load Balancing and Ingress
+- AWS Application Load Balancer exposes the application publicly
+- Kubernetes Ingress Controller manages ALB resources
+- Kubernetes Ingress routes traffic to the application service
 
-* AWS account
-* IAM user or role with required permissions
-* Terraform installed
-* Ansible installed
-* kubectl configured
-* eksctl installed (optional)
-
-### Steps
-
-1. Provision infrastructure using Terraform:
-
-   ```
-   terraform init
-   terraform apply
-   ```
-
-2. Configure Jenkins and tools using Ansible:
-
-   ```
-   ansible-playbook install-jenkins.yml
-   ```
-
-3. Configure GitHub webhook to Jenkins.
-
-4. Push application code to GitHub.
-
-5. Jenkins automatically builds and deploys the application.
-
-6. Access the application using ALB DNS name.
+### Kubernetes Services and Pods
+- Kubernetes Service provides stable networking
+- Multiple application pods ensure high availability
+- Pods run the PHP Student Application
+- Application connects to the database backend
 
 ---
 
-## Key Learnings & Highlights
+## Screenshots
 
-* End-to-end DevOps automation
-* Infrastructure as Code using Terraform
-* Configuration management with Ansible
-* Production-grade CI/CD using Jenkins
-* Secure and scalable Kubernetes deployment
-* AWS-native ingress with ALB
-* Real-world image versioning strategy
+
+### Jenkins CI/CD Pipeline
+Jenkins pipeline showing successful build, Docker image push, and deployment to EKS.
+
+![Jenkins Pipeline](screenshots/jenkins-pipeline.png)
+
+---
+
+### Amazon ECR Repository
+Docker images successfully pushed to Amazon ECR.
+
+![Amazon ECR](screenshots/ecr-repository.png)
+
+---
+
+### Amazon EKS Cluster
+EKS cluster with worker nodes in a healthy state.
+
+![EKS Cluster](screenshots/eks-cluster.png)
+
+---
+
+### Kubernetes Pods and Services
+Running application pods and services inside the EKS cluster.
+
+![Kubernetes Pods](screenshots/kubernetes-pods.png)
+
+---
+
+
+### Application Running in Browser
+PHP Student Application accessible via the public ALB endpoint.
+
+![Application UI](screenshots/application-ui.png)
+
+---
+
+## End-to-End Flow
+
+1. Code is pushed to GitHub
+2. GitHub triggers Jenkins via webhook
+3. Jenkins builds and pushes Docker image to ECR
+4. Jenkins deploys the application to EKS
+5. Kubernetes pulls the image from ECR
+6. Application is available through AWS ALB
+
+---
+
+## Tools and Technologies
+
+- AWS (EKS, ECR, ALB)
+- Kubernetes
+- Terraform
+- Ansible
+- Jenkins
+- Docker
+- GitHub
+
+---
+
+## Purpose of This Repository
+
+This project is intended for:
+- Learning Kubernetes and AWS EKS
+- Demonstrating CI/CD best practices
+- DevOps and Cloud interview preparation
+- Portfolio and reference architecture use
 
 ---
 
 ## Future Enhancements
 
-* HTTPS with ACM and TLS
-* Route 53 DNS mapping
-* Secrets management with AWS Secrets Manager
-* Monitoring with CloudWatch and Prometheus
-* Auto-scaling with HPA
+- Add monitoring and logging (Prometheus, Grafana, CloudWatch)
+- Implement security and image scanning
+- Use Helm for deployments
+- Enable blue/green or canary deployments
 
 ---
 
 ## Author
 
-**Govind Kotalwar**
-
-This project is built as a hands-on DevOps learning and production-ready reference implementation.
-
----
-
-If you want next:
-
-* I can **tailor this README for interviews**
-* Or **simplify it for recruiters**
-* Or **align it to a resume project description**
+Maintained as a DevOps learning and demonstration project.
