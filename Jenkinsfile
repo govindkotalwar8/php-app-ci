@@ -16,7 +16,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -26,7 +25,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh """
-                docker build -t ${IMAGE_URI} -f app/Dockerfile app/
+                docker build -t ${IMAGE_URI} .
                 """
             }
         }
@@ -59,8 +58,8 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 sh """
-                kubectl set image deployment/php-app php-app=${IMAGE_URI}
-                kubectl rollout status deployment/php-app
+                kubectl set image deployment/php-app php-app=${IMAGE_URI} -n default
+                kubectl rollout status deployment/php-app -n default
                 """
             }
         }
