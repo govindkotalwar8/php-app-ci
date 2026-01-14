@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: php-app-service
+  name: chat-frontend
+  namespace: chat-app
 spec:
   selector:
-    app: php-app
+    app: chat-frontend
+  type: LoadBalancer
   ports:
   - port: 80
     targetPort: 80
-  type: NodePort

@@ -6,10 +6,13 @@ pipeline {
     }
 
     environment {
-        AWS_REGION = "us-east-1"
-        ECR_REPO   = "629649838083.dkr.ecr.us-east-1.amazonaws.com/php-app"
-        IMAGE_TAG  = "${BUILD_NUMBER}"
-        CLUSTER    = "test-eks"
+        AWS_REGION     = "us-east-1"
+        AWS_ACCOUNT_ID = "629649838083"
+        ECR_REPO_NAME  = "php-app"
+        ECR_REGISTRY   = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        IMAGE_TAG      = "${BUILD_NUMBER}"
+        CLUSTER        = "test-eks"
+        IMAGE_URI      = "${ECR_REGISTRY}/${ECR_REPO_NAME}:${IMAGE_TAG}"
     }
 
     stages {
@@ -23,16 +26,16 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh """
-                docker build -t ${ECR_REPO}:${IMAGE_TAG} .
+                docker build -t ${IMAGE_URI} .
                 """
             }
         }
 
-        stage('Login to ECR') {
+        stage('Login to Amazon ECR') {
             steps {
                 sh """
                 aws ecr get-login-password --region ${AWS_REGION} \
-                | docker login --username AWS --password-stdin ${ECR_REPO}
+                | docker login --username AWS --password-stdin ${ECR_REGISTRY}
                 """
             }
         }
@@ -40,7 +43,7 @@ pipeline {
         stage('Push Image to ECR') {
             steps {
                 sh """
-                docker push ${ECR_REPO}:${IMAGE_TAG}
+                docker push ${IMAGE_URI}
                 """
             }
         }
@@ -55,8 +58,8 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                               sh """
-                kubectl set image deployment/php-app php-app=${ECR_REPO}:${IMAGE_TAG}
+                sh """
+                kubectl set image deployment/php-app php-app=${IMAGE_URI}
                 kubectl rollout status deployment/php-app
                 """
             }
