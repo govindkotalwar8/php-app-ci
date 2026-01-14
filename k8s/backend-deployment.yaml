@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/chat-backend:latest
+        image: 629649838083.dkr.ecr.us-east-1.amazonaws.com/chat-backend:latest
         ports:
         - containerPort: 5001
         env:

@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/chat-frontend:latest
+        image: 629649838083.dkr.ecr.us-east-1.amazonaws.com/chat-frontend:latest
         ports:
         - containerPort: 80
