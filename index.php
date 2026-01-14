@@ -93,7 +93,7 @@
         echo "<p><b>Name:</b> $name</p>";
         echo "<p><b>Email:</b> $email</p>";
         echo "<p><b>Age:</b> $age</p>";
-        echo "<p><b>Course:</b> $courses</p>";
+        echo "<p><b>Course:</b> $course</p>";
     }
     ?>
 </div>
